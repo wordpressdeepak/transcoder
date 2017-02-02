@@ -935,6 +935,20 @@ class RT_Transcoder_Handler {
 
 							$activity_content = str_replace( $attachemnt_url, $transcoded_file_url, $content );
 							$update = $wpdb->update( $wpdb->base_prefix . 'bp_activity', array( 'content' => $activity_content ), array( 'id' => $activity_id ) );
+
+							/* update activity profile content of the media */
+							if( isset( $media[0]->id ) && ! empty( $media[0]->id ) && function_exists( 'rtmedia_is_comment_media' ) ){
+								/* check if it's an comment media */
+								if( rtmedia_is_comment_media( $media[0]->id ) ){
+									/* get the profile activity id from the rtmedia meta table  */
+									$activity_id = get_rtmedia_meta( $media[0]->id, 'rtmedia_comment_media_profile_id' );
+
+									/* check is activity id is empty or not */
+									if( isset( $activity_id ) && ! empty( $activity_id ) ){
+										$update = $wpdb->update( $wpdb->base_prefix . 'bp_activity', array( 'content' => $activity_content ), array( 'id' => $activity_id ) );
+									}
+								}
+							}
 						}
 					}
 				}
